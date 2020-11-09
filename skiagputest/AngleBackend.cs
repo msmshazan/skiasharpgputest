@@ -40,6 +40,7 @@ namespace skiagputest
         private const int EGL_FIXED_SIZE_ANGLE = 0x3201;
         private const int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
         private const int GL_FRAMEBUFFER_BINDING = 0x8CA6;
+        private const int GL_RENDERBUFFER_BINDING = 0x8CA7;
         private const int EGL_SAMPLES = 0x3031;
         private const int EGL_SAMPLE_BUFFERS = 0x3032;
         private const int EGL_PLATFORM_ANGLE_TYPE_VULKAN_ANGLE = 0x3450;
@@ -50,7 +51,20 @@ namespace skiagputest
         private const int GL_READ_FRAMEBUFFER_ANGLE = 0x8CA8;
         private const int GL_DRAW_FRAMEBUFFER_ANGLE = 0x8CA9;
         private const int EGL_SURFACE_TYPE = 0x3033;
-        
+        private const int GL_COLOR_BUFFER_BIT = 0x00004000;
+        private const int GL_DEPTH_BUFFER_BIT = 0x00000100;
+        private const int GL_STENCIL_BUFFER_BIT = 0x00000400;
+        private const int GL_NEAREST = 0x2600;
+        private const int GL_LINEAR = 0x2600;
+        private const int GL_RENDERBUFFER = 0x8D41;
+        private const int GL_FRAMEBUFFER = 0x8D40;
+        private const int GL_COLOR_ATTACHMENT0 = 0x8CE0;
+        private const int GL_DEPTH_ATTACHMENT = 0x8D00;
+        private const int GL_STENCIL_ATTACHMENT = 0x8D20;
+        private const int GL_DEPTH_STENCIL_ATTACHMENT = 0x821A;
+        private const int GL_DEPTH24_STENCIL8 = 0x88F0;
+        private const int GL_RGBA8 = 0x8058;
+
         private Delegate EGL_GetProcAddress(string name, Type type)
         {
             IntPtr addr = Win32GetProcAddress(EGL, name);
@@ -86,118 +100,122 @@ namespace skiagputest
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate EGLDisplay GetPlatformDisplayExt(uint platform, IntPtr display, int[] attribList);
-
         public GetPlatformDisplayExt EglGetPlatformDisplayExt;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate EGLBoolean Initialize(EGLDisplay dpy, ref int major, ref int minor);
-
         public Initialize EglInitialize;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void GetConfigs(EGLDisplay dpy, EGLConfig[] configs, int configSize, IntPtr numConfig);
-
         public GetConfigs EglGetConfigs;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate uint ChooseConfig(EGLDisplay dpy, int[] attribList, ref EGLConfig configs, int configSize, ref int numConfig);
-
         public ChooseConfig EglChooseConfig;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr CreateContext(EGLDisplay dpy, EGLConfig config, IntPtr shareContext, int[] attribList);
-
         public CreateContext EglCreateContext;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void CreatePbufferSurface(EGLDisplay dpy, EGLConfig config, IntPtr attribList);
-
         public CreatePbufferSurface EglCreatePbufferSurface;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr CreateWindowSurface(EGLDisplay dpy, EGLConfig config, IntPtr win, int[] attribList);
-
         public CreateWindowSurface EglCreateWindowSurface;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate uint MakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx);
-
         public MakeCurrent EglMakeCurrent;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void SwapBuffers(EGLDisplay dpy, EGLSurface surface);
-
         public SwapBuffers EglSwapBuffers;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void DestroySurface(EGLDisplay dpy, EGLSurface surface);
-
         public DestroySurface EglDestroySurface;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void DestroyContext(EGLDisplay dpy, EGLContext ctx);
-
         public DestroyContext EglDestroyContext;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void Terminate(EGLDisplay dpy);
-
         public Terminate EglTerminate;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void SwapInterval(EGLDisplay dpy, int interval);
-
         public SwapInterval EglSwapInterval;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void WaitGL();
-
         public WaitGL EglWaitGL;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void WaitNative(int engine);
-
         public WaitNative EglWaitNative;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void WaitClient();
-
         public WaitClient EglWaitClient;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void SurfaceAttrib(EGLDisplay dpy, EGLSurface surface, int attrib, int value);
-
         public SurfaceAttrib EglSurfaceAttrib;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr EGLGetProcAddress(string value);
-
         public EGLGetProcAddress EglGetProcAddress;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void GetIntegerv(uint pname, ref int data);
-
         public GetIntegerv GlGetIntegerv;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void GenFramebuffers(int n, uint[] frameBuffers);
+        public GenFramebuffers GlGenFramebuffers;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void GenRenderbuffers(int n, uint[] renderBuffers);
+        public GenRenderbuffers GlGenRenderbuffers;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void BindFramebuffer(uint target, uint frameBuffer);
+        public BindFramebuffer GlBindFramebuffer;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void BindRenderbuffer(uint target, uint renderBuffer);
+        public BindRenderbuffer GlBindRenderbuffer;
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void RenderbufferStorageMultisampleANGLE(uint target, int samples, uint internalformat, int width, int height);
+        public delegate void FramebufferRenderbuffer(uint target,uint attachment, uint renderBuffertarget,uint renderbuffer);
+        public FramebufferRenderbuffer GlFramebufferRenderbuffer;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void RenderbufferStorageMultisampleANGLE(uint target, int samples, uint internalformat, int width, int height);
         public RenderbufferStorageMultisampleANGLE GlRenderbufferStorageMultisampleANGLE;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void BlitFramebufferANGLE(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, uint mask, uint filter);
-
         public BlitFramebufferANGLE GlBlitFramebufferANGLE;
+
         [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Ansi)]
         static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)] string lpFileName);
 
-        [DllImport("kernel32", CharSet = CharSet.Ansi,EntryPoint = "GetProcAddress", SetLastError = true)]
+        [DllImport("kernel32", CharSet = CharSet.Ansi, EntryPoint = "GetProcAddress", SetLastError = true)]
         static extern IntPtr Win32GetProcAddress(IntPtr hModule, string procName);
 
         public IntPtr EGL;
         public IntPtr GL;
         public IntPtr VK;
         public bool IsCpuBackend;
+        public bool IsMSAA => (MSAABufferFBO > 0);
+        public uint BackBufferFBO;
+        public uint MSAABufferFBO;
+        public uint MSAARenderBuffer;
 
         public AngleBackend(bool isCpuBackend = false)
         {
@@ -232,34 +250,48 @@ namespace skiagputest
             EglSurfaceAttrib = (SurfaceAttrib)EGL_GetProcAddress("eglSurfaceAttrib", typeof(SurfaceAttrib));
             EglWaitNative = (WaitNative)EGL_GetProcAddress("eglWaitNative", typeof(WaitNative));
             EglGetProcAddress = (EGLGetProcAddress)EGL_GetProcAddress("eglGetProcAddress", typeof(EGLGetProcAddress));
-            GlGetIntegerv = (GetIntegerv) GL_GetProcAddress("glGetIntegerv", typeof(GetIntegerv));
-            GlRenderbufferStorageMultisampleANGLE = 
-                (RenderbufferStorageMultisampleANGLE) GL_GetProcAddress("glRenderbufferStorageMultisampleANGLE", typeof(RenderbufferStorageMultisampleANGLE));
+            GlGetIntegerv = (GetIntegerv)GL_GetProcAddress("glGetIntegerv", typeof(GetIntegerv));
+            GlBindRenderbuffer = (BindRenderbuffer)GL_GetProcAddress("glBindRenderbuffer", typeof(BindRenderbuffer));
+            GlFramebufferRenderbuffer = (FramebufferRenderbuffer)GL_GetProcAddress("glFramebufferRenderbuffer", typeof(FramebufferRenderbuffer));
+            GlBindFramebuffer = (BindFramebuffer)GL_GetProcAddress("glBindFramebuffer", typeof(BindFramebuffer));
+            GlGenRenderbuffers = (GenRenderbuffers) GL_GetProcAddress("glGenRenderbuffers", typeof(GenRenderbuffers));
+            GlGenFramebuffers = (GenFramebuffers) GL_GetProcAddress("glGenFramebuffers", typeof(GenFramebuffers));
+            GlRenderbufferStorageMultisampleANGLE =
+                (RenderbufferStorageMultisampleANGLE)GL_GetProcAddress("glRenderbufferStorageMultisampleANGLE", typeof(RenderbufferStorageMultisampleANGLE));
             GlBlitFramebufferANGLE =
-                (BlitFramebufferANGLE) GL_GetProcAddress("glBlitFramebufferANGLE", typeof(BlitFramebufferANGLE));
+                (BlitFramebufferANGLE)GL_GetProcAddress("glBlitFramebufferANGLE", typeof(BlitFramebufferANGLE));
         }
 
         public uint GetFrameBuffer()
         {
             int buffer = -1;
             GlGetIntegerv(GL_FRAMEBUFFER_BINDING, ref buffer);
-            return (uint) buffer;
+            return (uint)buffer;
         }
 
         public uint GetFramebufferFormat()
         {
-            return (uint)GL_BGRA8_EXT;
-    }
+            return (uint)GL_RGBA8;
+        }
         private EGLDisplay display;
         private EGLSurface eglsurface;
-        public void InitializeContext(int width,int height,IntPtr hwnd,IntPtr hdc)
+        private int Width;
+        private int Height;
+        public void InitializeContext(int width, int height, bool msaa, IntPtr hwnd, IntPtr hdc)
         {
-            int[] attributes = { EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE, EGL_NONE };
+            Width = width;
+            Height = height;
+            int[] attributes = {EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE, EGL_NONE};
             if (IsCpuBackend)
             {
-                attributes = new [] {EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE,EGL_PLATFORM_ANGLE_DEVICE_TYPE_SWIFTSHADER_ANGLE , EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_VULKAN_ANGLE, EGL_NONE };
+                attributes = new[]
+                {
+                    EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_DEVICE_TYPE_SWIFTSHADER_ANGLE,
+                    EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_VULKAN_ANGLE, EGL_NONE
+                };
             }
-            display = EglGetPlatformDisplayExt(EGL_PLATFORM_ANGLE_ANGLE,hdc, attributes);
+
+            display = EglGetPlatformDisplayExt(EGL_PLATFORM_ANGLE_ANGLE, hdc, attributes);
             int major = 0;
             int minor = 0;
             EglInitialize(display, ref major, ref minor);
@@ -285,20 +317,53 @@ namespace skiagputest
             int[] surfaceattribs =
             {
                 EGL_RENDER_BUFFER, EGL_BACK_BUFFER,
-                EGL_DIRECT_COMPOSITION_ANGLE , EGL_TRUE,
+                EGL_DIRECT_COMPOSITION_ANGLE, EGL_TRUE,
                 EGL_FIXED_SIZE_ANGLE, EGL_TRUE,
-                EGL_WIDTH,  width,
+                EGL_WIDTH, width,
                 EGL_HEIGHT, height,
                 EGL_NONE
             };
             var context = EglCreateContext(display, surfaceConfig, IntPtr.Zero, contextattribs);
             eglsurface = EglCreateWindowSurface(display, surfaceConfig, hwnd, surfaceattribs);
             EglMakeCurrent(display, eglsurface, eglsurface, context);
+            int buffer = -1;
+            GlGetIntegerv(GL_FRAMEBUFFER_BINDING, ref buffer);
+            BackBufferFBO = (uint)buffer;
+            if (msaa)
+            {
+                 var msaabuffer = new uint[2];
+                var msaafbos = new uint[1];
+                GlGenRenderbuffers(2, msaabuffer);
+                GlGenFramebuffers(1, msaafbos);
+                GlBindFramebuffer(GL_FRAMEBUFFER, msaafbos[0]);
+                GlBindRenderbuffer(GL_RENDERBUFFER, msaabuffer[0]);
+                GlRenderbufferStorageMultisampleANGLE(GL_RENDERBUFFER, 4, GL_BGRA8_EXT, Width, Height);
+                GlBindRenderbuffer(GL_RENDERBUFFER, msaabuffer[1]);
+                GlRenderbufferStorageMultisampleANGLE(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, Width, Height);
+                GlFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, msaabuffer[0]);
+                GlFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, msaabuffer[1]);
+                buffer = -1;
+                GlGetIntegerv(GL_FRAMEBUFFER_BINDING, ref buffer);
+                MSAABufferFBO = (uint) buffer;
+            }
         }
 
         public void Swap()
         {
-            EglSwapBuffers(display, eglsurface);
+            if (IsMSAA)
+            {
+                GlBindFramebuffer(GL_FRAMEBUFFER, BackBufferFBO);
+                GlBindFramebuffer(GL_READ_FRAMEBUFFER_ANGLE, MSAABufferFBO);
+                GlBindFramebuffer(GL_DRAW_FRAMEBUFFER_ANGLE, BackBufferFBO);
+                GlBlitFramebufferANGLE(0, 0, Width, Height, 0, 0, Width, Height,
+                    (uint) (GL_COLOR_BUFFER_BIT ), GL_NEAREST);
+                EglSwapBuffers(display, eglsurface);
+                GlBindFramebuffer(GL_FRAMEBUFFER, MSAABufferFBO);
+            }
+            else
+            {
+                EglSwapBuffers(display, eglsurface);
+            }
         }
     }
 }
